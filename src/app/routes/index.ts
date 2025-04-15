@@ -7,6 +7,7 @@ import { OrderRoutes } from '../modules/order/order.routes';
 import { CouponRoutes } from '../modules/coupon/coupon.routes';
 import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.routes';
 import { BrandRoutes } from '../modules/brand/brand.routes';
+import { MetaRoutes } from '../modules/meta/meta.route';
 const router = Router();
 
 const moduleRoutes = [
@@ -46,10 +47,10 @@ const moduleRoutes = [
     route: SSLRoutes,
   },
 
-  // {
-  //    path: '/meta',
-  //    route: MetaRoutes,
-  // },
+  {
+    path: '/meta',
+    route: MetaRoutes,
+  },
 ];
 
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

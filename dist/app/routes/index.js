@@ -9,6 +9,7 @@ const order_routes_1 = require("../modules/order/order.routes");
 const coupon_routes_1 = require("../modules/coupon/coupon.routes");
 const sslcommerz_routes_1 = require("../modules/sslcommerz/sslcommerz.routes");
 const brand_routes_1 = require("../modules/brand/brand.routes");
+const meta_route_1 = require("../modules/meta/meta.route");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -43,10 +44,10 @@ const moduleRoutes = [
         path: '/ssl',
         route: sslcommerz_routes_1.SSLRoutes,
     },
-    // {
-    //    path: '/meta',
-    //    route: MetaRoutes,
-    // },
+    {
+        path: '/meta',
+        route: meta_route_1.MetaRoutes,
+    },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
 exports.default = router;
