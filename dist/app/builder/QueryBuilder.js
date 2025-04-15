@@ -28,6 +28,7 @@ class QueryBuilder {
     }
     filter() {
         const queryObj = Object.assign({}, this.query); // copy
+        // Filtering
         const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
         excludeFields.forEach((el) => delete queryObj[el]);
         this.modelQuery = this.modelQuery.find(queryObj);
@@ -53,7 +54,6 @@ class QueryBuilder {
         this.modelQuery = this.modelQuery.select(fields);
         return this;
     }
-    // sent meata data
     countTotal() {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
@@ -69,6 +69,19 @@ class QueryBuilder {
                 totalPage,
             };
         });
+    }
+    priceRange(minPrice, maxPrice) {
+        const priceFilter = {};
+        if (minPrice !== undefined)
+            priceFilter.$gte = minPrice;
+        if (maxPrice !== undefined)
+            priceFilter.$lte = maxPrice;
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            this.modelQuery = this.modelQuery.find({
+                price: priceFilter,
+            });
+        }
+        return this;
     }
 }
 exports.default = QueryBuilder;

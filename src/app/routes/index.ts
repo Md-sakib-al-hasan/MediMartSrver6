@@ -1,11 +1,57 @@
-// import { Router } from 'express';
+import { Router } from 'express';
+import { UserRoutes } from '../modules/user/user.routes';
+import { AuthRoutes } from '../modules/auth/auth.routes';
+import { CategoryRoutes } from '../modules/category/category.routes';
+import { ProductRoutes } from '../modules/product/product.routes';
+import { OrderRoutes } from '../modules/order/order.routes';
+import { CouponRoutes } from '../modules/coupon/coupon.routes';
+import { SSLRoutes } from '../modules/sslcommerz/sslcommerz.routes';
+import { BrandRoutes } from '../modules/brand/brand.routes';
+const router = Router();
 
-// const router = Router();
+const moduleRoutes = [
+  {
+    path: '/user',
+    route: UserRoutes,
+  },
+  {
+    path: '/brand',
+    route: BrandRoutes,
+  },
+  {
+    path: '/auth',
+    route: AuthRoutes,
+  },
 
-// const moduleRoutes = [
+  {
+    path: '/category',
+    route: CategoryRoutes,
+  },
 
-// ];
+  {
+    path: '/product',
+    route: ProductRoutes,
+  },
 
-// moduleRoutes.forEach((route) => router.use(route.path, route.route));
+  {
+    path: '/order',
+    route: OrderRoutes,
+  },
+  {
+    path: '/coupon',
+    route: CouponRoutes,
+  },
+  {
+    path: '/ssl',
+    route: SSLRoutes,
+  },
 
-// export default router;
+  // {
+  //    path: '/meta',
+  //    route: MetaRoutes,
+  // },
+];
+
+moduleRoutes.forEach((route) => router.use(route.path, route.route));
+
+export default router;

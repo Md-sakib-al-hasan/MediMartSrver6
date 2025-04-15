@@ -15,36 +15,60 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 const config_1 = __importDefault(require("./app/config"));
-const DB_1 = __importDefault(require("./app/DB"));
-let server;
-// Main function to establish database connection and start the server
-function main() {
+let server = null;
+// Database connection
+function connectToDatabase() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield mongoose_1.default.connect(config_1.default.database_url);
-            (0, DB_1.default)();
-            server = app_1.default.listen(config_1.default.port, () => {
-                console.log(`app is listening on port ${config_1.default.port}`);
-            });
+            yield mongoose_1.default.connect(config_1.default.db_url);
+            console.log('🛢 Database connected successfully');
         }
         catch (err) {
-            console.log(err);
+            console.error('Failed to connect to database:', err);
+            process.exit(1);
         }
     });
 }
-main();
-// Handling unhandled promise rejections globally
-process.on('unhandledRejection', (err) => {
-    console.log(`😈 unhandledRejection is detected, shutting down...`, err);
+// Graceful shutdown
+function gracefulShutdown(signal) {
+    console.log(`Received ${signal}. Closing server...`);
     if (server) {
         server.close(() => {
-            process.exit(1);
+            console.log('Server closed gracefully');
+            process.exit(0);
         });
     }
-    process.exit(1);
-});
-// Handling uncaught exceptions globally
-process.on('uncaughtException', () => {
-    console.log(`😈 uncaughtException is detected, shutting down...`);
-    process.exit(1);
-});
+    else {
+        process.exit(0);
+    }
+}
+// Application bootstrap
+function bootstrap() {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            yield connectToDatabase();
+            //await seed();
+            server = app_1.default.listen(config_1.default.port, () => {
+                console.log(`🚀 Application is running on port ${config_1.default.port}`);
+            });
+            // Listen for termination signals
+            process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+            process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+            // Error handling
+            process.on('uncaughtException', (error) => {
+                console.error('Uncaught Exception:', error);
+                gracefulShutdown('uncaughtException');
+            });
+            process.on('unhandledRejection', (error) => {
+                console.error('Unhandled Rejection:', error);
+                gracefulShutdown('unhandledRejection');
+            });
+        }
+        catch (error) {
+            console.error('Error during bootstrap:', error);
+            process.exit(1);
+        }
+    });
+}
+// Start the application
+bootstrap();

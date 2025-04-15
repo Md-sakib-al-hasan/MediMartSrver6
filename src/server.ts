@@ -2,39 +2,62 @@ import { Server } from 'http';
 import mongoose from 'mongoose';
 import app from './app';
 import config from './app/config';
-import seedSuperAdmin from './app/DB';
 
-let server: Server;
+let server: Server | null = null;
 
-// Main function to establish database connection and start the server
-async function main() {
+// Database connection
+async function connectToDatabase() {
   try {
-    await mongoose.connect(config.database_url as string);
-    seedSuperAdmin();
-    server = app.listen(config.port, () => {
-      console.log(`app is listening on port ${config.port}`);
-    });
+    await mongoose.connect(config.db_url as string);
+    console.log('🛢 Database connected successfully');
   } catch (err) {
-    console.log(err);
+    console.error('Failed to connect to database:', err);
+    process.exit(1);
   }
 }
 
-main();
-
-// Handling unhandled promise rejections globally
-process.on('unhandledRejection', (err) => {
-  console.log(`😈 unhandledRejection is detected, shutting down...`, err);
-
+// Graceful shutdown
+function gracefulShutdown(signal: string) {
+  console.log(`Received ${signal}. Closing server...`);
   if (server) {
     server.close(() => {
-      process.exit(1);
+      console.log('Server closed gracefully');
+      process.exit(0);
     });
+  } else {
+    process.exit(0);
   }
-  process.exit(1);
-});
+}
 
-// Handling uncaught exceptions globally
-process.on('uncaughtException', () => {
-  console.log(`😈 uncaughtException is detected, shutting down...`);
-  process.exit(1);
-});
+// Application bootstrap
+async function bootstrap() {
+  try {
+    await connectToDatabase();
+    //await seed();
+
+    server = app.listen(config.port, () => {
+      console.log(`🚀 Application is running on port ${config.port}`);
+    });
+
+    // Listen for termination signals
+    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+    // Error handling
+    process.on('uncaughtException', (error) => {
+      console.error('Uncaught Exception:', error);
+      gracefulShutdown('uncaughtException');
+    });
+
+    process.on('unhandledRejection', (error) => {
+      console.error('Unhandled Rejection:', error);
+      gracefulShutdown('unhandledRejection');
+    });
+  } catch (error) {
+    console.error('Error during bootstrap:', error);
+    process.exit(1);
+  }
+}
+
+// Start the application
+bootstrap();

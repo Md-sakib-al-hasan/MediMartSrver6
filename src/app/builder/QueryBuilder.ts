@@ -27,6 +27,8 @@ class QueryBuilder<T> {
 
   filter() {
     const queryObj = { ...this.query }; // copy
+
+    // Filtering
     const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
 
     excludeFields.forEach((el) => delete queryObj[el]);
@@ -61,8 +63,6 @@ class QueryBuilder<T> {
     this.modelQuery = this.modelQuery.select(fields);
     return this;
   }
-
-  // sent meata data
   async countTotal() {
     const totalQueries = this.modelQuery.getFilter();
     const total = await this.modelQuery.model.countDocuments(totalQueries);
@@ -76,6 +76,20 @@ class QueryBuilder<T> {
       total,
       totalPage,
     };
+  }
+
+  priceRange(minPrice?: number, maxPrice?: number) {
+    const priceFilter: Record<string, unknown> = {};
+    if (minPrice !== undefined) priceFilter.$gte = minPrice;
+    if (maxPrice !== undefined) priceFilter.$lte = maxPrice;
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      this.modelQuery = this.modelQuery.find({
+        price: priceFilter,
+      } as FilterQuery<T>);
+    }
+
+    return this;
   }
 }
 

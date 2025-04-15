@@ -1,25 +1,31 @@
-import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Application, Request, Response } from 'express';
-import globalErrorHandler from './app/middlewares/globalErrorhandler';
-import notFound from './app/middlewares/notFound';
-import config from './app/config';
+import cookieParser from 'cookie-parser';
+import { StatusCodes } from 'http-status-codes';
+import router from './app/routes';
+import globalErrorHandler from './app/middleware/globalErrorHandler';
+import notFound from './app/middleware/notFound';
 
 const app: Application = express();
 
-//parsers
-app.use(express.json());
+// Middleware setup
+app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(cookieParser());
-app.use(cors({ origin: [`${config.domain_fontend}`], credentials: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use('/api/v1', router);
 
 app.get('/', (req: Request, res: Response) => {
-  res.send('SuccessFully run server');
+  res.status(StatusCodes.OK).json({
+    success: true,
+    message: 'Welcome to the Next Mart',
+  });
 });
+
+app.use(globalErrorHandler);
 
 //Not Found
 app.use(notFound);
-
-//golbal Error Handeling
-app.use(globalErrorHandler);
 
 export default app;

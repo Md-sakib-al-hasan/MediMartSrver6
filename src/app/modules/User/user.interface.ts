@@ -1,15 +1,37 @@
-/* eslint-disable no-unused-vars */
-import { Model } from 'mongoose';
-export interface Tuser {
-  name: string;
-  email: string;
-  password: string;
+import { Document, Model } from 'mongoose';
+import { UserGender } from './user.constant';
+
+export type Gender = (typeof UserGender)[number];
+
+export enum UserRole {
+  ADMIN = 'admin',
+  USER = 'customer',
 }
 
-export interface UserModel extends Model<Tuser> {
-  isUserExistsByEmail(id: string): Promise<Tuser>;
+export interface IUser extends Document {
+  userid: string;
+  email: string;
+  phone?: string;
+  password: string;
+  name: string;
+  role: UserRole;
+  gender?: Gender;
+  address?: string;
+  dateOfBirth?: Date;
+  profilePicture?: string;
+  status: string;
+  lastLogin: Date;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface UserModel extends Model<IUser> {
   isPasswordMatched(
-    plainTextPassword: string,
-    hashedPassword: string,
+    _plainTextPassword: string,
+    _hashedPassword: string,
   ): Promise<boolean>;
+
+  isUserExistsByEmail(_id: string): Promise<IUser>;
+  checkUserExist(_userId: string): Promise<IUser>;
 }

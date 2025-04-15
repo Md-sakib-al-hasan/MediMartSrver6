@@ -12,30 +12,61 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserControllers = void 0;
-const http_status_1 = __importDefault(require("http-status"));
+exports.UserController = void 0;
+const user_service_1 = require("./user.service");
 const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
-const user_service_1 = require("./user.service");
-const createCustomer = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserServices.createUserDB(req.body);
+const http_status_codes_1 = require("http-status-codes");
+const config_1 = __importDefault(require("../../config"));
+const registerUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.registerUser(req.body);
+    const { refreshToken, accessToken } = result;
+    res.cookie('refreshToken', refreshToken, {
+        secure: config_1.default.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'none',
+        maxAge: 1000 * 60 * 60 * 24 * 365,
+    });
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
+        statusCode: http_status_codes_1.StatusCodes.OK,
         success: true,
-        message: 'user is created succesfully',
+        message: 'User registration completed successfully!',
+        data: {
+            accessToken,
+        },
+    });
+}));
+const getAllUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.getAllUser(req.query);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: 'Users are retrieved successfully',
+        meta: result.meta,
+        data: result.result,
+    });
+}));
+const updateProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.updateProfile(req.body, req.user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: `Profile updated successfully`,
         data: result,
     });
 }));
-const getsingleuser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield user_service_1.UserServices.singleUserBD(req.body.email);
+const myProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.UserServices.myProfile(req.user);
     (0, sendResponse_1.default)(res, {
-        statusCode: http_status_1.default.OK,
+        statusCode: http_status_codes_1.StatusCodes.OK,
         success: true,
-        message: 'Succesfully get single user',
+        message: 'Profile retrieved successfully',
         data: result,
     });
 }));
-exports.UserControllers = {
-    createCustomer,
-    getsingleuser,
+exports.UserController = {
+    registerUser,
+    getAllUser,
+    updateProfile,
+    myProfile,
 };
