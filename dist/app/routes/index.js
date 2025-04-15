@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const user_routes_1 = require("../modules/user/user.routes");
 const auth_routes_1 = require("../modules/auth/auth.routes");
 const category_routes_1 = require("../modules/category/category.routes");
 const product_routes_1 = require("../modules/product/product.routes");
@@ -10,6 +9,7 @@ const coupon_routes_1 = require("../modules/coupon/coupon.routes");
 const sslcommerz_routes_1 = require("../modules/sslcommerz/sslcommerz.routes");
 const brand_routes_1 = require("../modules/brand/brand.routes");
 const meta_route_1 = require("../modules/meta/meta.route");
+const user_routes_1 = require("../modules/user/user.routes");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
